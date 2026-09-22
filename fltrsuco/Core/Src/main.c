@@ -49,7 +49,8 @@ UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
-
+#define QNT_AMOSTRAS 256
+uint32_t amostras[256];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -102,7 +103,8 @@ int main(void)
   MX_TIM3_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_TIM_Base_Start_IT(&htim3);
+  HAL_ADC_Start_DMA(&hadc1, amostras, QNT_AMOSTRAS);
   /* USER CODE END 2 */
 
   /* Infinite loop */
