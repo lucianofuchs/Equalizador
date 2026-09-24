@@ -55,9 +55,6 @@ DMA_HandleTypeDef hdma_usart2_tx;
 #define QNT_AMOSTRAS 256
 uint16_t amostras[QNT_AMOSTRAS];
 uint16_t saida_dac[QNT_AMOSTRAS];
-float numeradores[20] = {0.00051105, 0.00217406, 0.00647372, 0.01533688, 0.02975306, 0.04921456,0.07157931, 0.09343798,
-		0.11090538, 0.12061399, 0.12061399, 0.11090538,0.09343798, 0.07157931, 0.04921456, 0.02975306, 0.01533688, 0.00647372,
-		0.00217406, 0.00051105};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -149,13 +146,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSIDiv = RCC_HSI_DIV1;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV1;
-  RCC_OscInitStruct.PLL.PLLN = 8;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
-  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -165,11 +156,11 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
   {
     Error_Handler();
   }
@@ -210,7 +201,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
   hadc1.Init.DMAContinuousRequests = ENABLE;
   hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
-  hadc1.Init.SamplingTimeCommon1 = ADC_SAMPLETIME_39CYCLES_5;
+  hadc1.Init.SamplingTimeCommon1 = ADC_SAMPLETIME_1CYCLE_5;
   hadc1.Init.SamplingTimeCommon2 = ADC_SAMPLETIME_1CYCLE_5;
   hadc1.Init.OversamplingMode = DISABLE;
   hadc1.Init.TriggerFrequencyMode = ADC_TRIGGER_FREQ_HIGH;
@@ -298,7 +289,7 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 0;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 639;
+  htim3.Init.Period = 363;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -418,60 +409,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void passa_metade_saida(int qual_metade){
-
-	int inicio = qual_metade * 128;
-	int fim = inicio + 128;
-
-	for (int i = 0; i < fim; i++){
-
-		saida_dac[i] = amostras[i];
-
-	}
-}
-void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef *hdac){
-
-	if (hdac->Instance == DAC1){
-
-		passa_metade_saida(1);
-
-	}
-
-}
-
-
-void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef *hdac){
-
-	if(hdac->Instance == DAC1){
-
-		passa_metade_saida(0);
-
-	}
-
-}
-
-
-
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
-
-	if(hadc->Instance == ADC1){
-
-		passa_metade_saida(1);
-
-	}
-
-}
-
-void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc){
-
-	if(hadc->Instance == ADC1){
-
-		passa_metade_saida(0);
-
-	}
-
-}
-
 
 /* USER CODE END 4 */
 
